@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <title>Sophie Bluel - Architecte d'intérieur</title>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -12,15 +13,22 @@
     />
     <meta name="description" content="" />
     <link rel="stylesheet" href="./assets/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
   </head>
   <body>
     <header>
-      <h1>Sophie Bluel <span>Architecte d'intérieur</span></h1>
+      <h1>
+        <a href="index.html" id="index-link"> Sophie Bluel</a>
+        <span>Architecte d'intérieur</span>
+      </h1>
       <nav>
         <ul>
           <li>projets</li>
           <li>contact</li>
-          <li>login</li>
+          <li><a href="login.html" id="login-link">login</a></li>
           <li><img src="./assets/icons/instagram.png" alt="Instagram" /></li>
         </ul>
       </nav>
@@ -49,12 +57,20 @@
           </p>
         </article>
       </section>
+
+      <aside id="modal-gallery" class="modal" aria-hidden="true" role="dialog">
+        <div class="modal-wrapper">
+          <button class="js-modal-close">&times;</button>
+          <h2>Galerie photo</h2>
+          <div class="modal-gallery"></div>
+          <div class="separator"></div>
+          <button class="add-photo-btn">Ajouter une photo</button>
+        </div>
+      </aside>
+
       <section id="portfolio">
         <h2>Mes Projets</h2>
-        <button class="btnTous">Tous</button>
-        <button class="btnObjet">Objets</button>
-        <button class="btnApp">Appartements</button>
-        <button class="btnHotel">Hotels &amp restaurants</button>
+        <div class="boutons-filtre"></div>
         <div class="gallery">
           <figure>
             <img src="assets/images/abajour-tahina.png" alt="Abajour Tahina" />
@@ -155,5 +171,7 @@
       </nav>
     </footer>
     <script src="index.js"></script>
+    <script src="login.js"></script>
+    <script src="app.js"></script>
   </body>
 </html>

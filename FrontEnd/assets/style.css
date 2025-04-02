@@ -158,6 +158,13 @@ h1 > span {
   letter-spacing: 0.1em;
 }
 
+h1 a {
+  text-decoration: none;
+  color: inherit;
+  font-weight: inherit;
+  font-family: inherit;
+}
+
 h2 {
   font-family: "Syne";
   font-weight: 700;
@@ -215,33 +222,40 @@ li:hover {
 .gallery img {
   width: 100%;
 }
-#contact {
+#contact,
+#login {
   width: 50%;
   margin: auto;
 }
-#contact > * {
+#contact,
+#login > * {
   text-align: center;
 }
-#contact h2 {
+#contact h2,
+#login h2 {
   margin-bottom: 20px;
 }
-#contact form {
+#contact form,
+#login form {
   text-align: left;
   margin-top: 30px;
   display: flex;
   flex-direction: column;
 }
 
-#contact input {
+#contact input,
+#login input {
   height: 50px;
   font-size: 1.2em;
   border: none;
   box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
 }
-#contact label {
+#contact label,
+#login label {
   margin: 2em 0 1em 0;
 }
-#contact textarea {
+#contact textarea,
+#login textarea {
   border: none;
   box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
 }
@@ -257,22 +271,197 @@ input[type="submit"] {
   border-radius: 60px;
 }
 
-.btnTous,
-.btnObjet,
-.btnApp,
-.btnHotel {
-  font-family: "Syne";
+.boutons-filtre {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin: 20px 1px;
+}
+
+.btn-filtre {
+  font-family: "Syne", sans-serif;
   font-weight: 700;
-  color: white;
-  background-color: #1d6154;
-  margin: 2em auto;
+  color: #1d6154;
+  background-color: white;
+  border: 1px solid #1d6154;
   width: 180px;
   text-align: center;
   border-radius: 60px;
+  padding: 10px 10px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-width: 200px;
+  white-space: nowrap;
+}
+
+.btn-filtre:hover,
+.btn-filtre.active {
+  background-color: #1d6154;
+  color: white;
+}
+
+#login-link {
+  text-decoration: none;
+  font-weight: normal;
+}
+
+#login-link.active {
+  font-weight: bold;
+}
+
+.forgot-password {
+  font-family: "Syne", sans-serif;
+  font-weight: 700;
+  display: block;
+  text-align: center;
+  font-size: 14px;
+  color: #1d6154;
+  text-decoration: underline;
+  margin-top: 10px;
+  cursor: pointer;
 }
 
 footer nav ul {
   display: flex;
   justify-content: flex-end;
   margin: 2em;
+}
+
+/* Style pour le lien "Modifier" avec l'icône et le texte */
+.modifier-link {
+  display: inline-flex;
+  align-items: center;
+  font-size: 16px;
+  color: black;
+  text-decoration: none;
+  margin-left: 15px;
+}
+
+.modifier-link i {
+  font-size: 20px;
+  margin-right: 5px;
+}
+
+.modifier-link:hover {
+  color: black;
+  cursor: pointer;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Affichage modale */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-wrapper {
+  background: white;
+  border-radius: 8px;
+  width: 60%;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-bottom: 20px; /* Ajout d'un peu de padding en bas */
+}
+
+.modal-wrapper h2 {
+  text-align: center;
+  width: 100%;
+  margin-top: 30px;
+  margin-bottom: 20px;
+  font-family: "Syne", sans-serif;
+  font-weight: 700;
+  color: #1d6154;
+}
+
+.js-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  border: none;
+  background: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.modal-gallery {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px 5px;
+  margin: 20px 0;
+}
+
+.modal-gallery img {
+  width: 100%;
+  max-width: 100px;
+  height: auto;
+  object-fit: cover;
+}
+
+/* Séparation entre la galerie et le bouton */
+.separator {
+  width: 46%;
+  height: 1px;
+  background-color: grey;
+  margin: 20px 0;
+}
+
+.add-photo-btn {
+  font-family: "Syne", sans-serif;
+  font-weight: 700;
+  color: white;
+  background-color: #1d6154;
+  border: 1px solid #1d6154;
+  width: 180px;
+  text-align: center;
+  border-radius: 60px;
+  padding: 10px 10px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-width: 200px;
+  white-space: nowrap;
+  justify-self: center;
+}
+
+.modal-gallery .image-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.modal-gallery .trash-icon {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: black;
+  color: white;
+  padding: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 22px;
+  height: 22px;
+}
+
+.modal-gallery .trash-icon:hover {
+  background-color: red;
 }
