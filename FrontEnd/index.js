@@ -20,6 +20,13 @@ function afficherBandeauEdition() {
     }
 }
 
+// Supprime le bandeau d'édition s'il existe
+const editionBanner = document.querySelector('div[style*="Mode édition"]');
+if (editionBanner) {
+    editionBanner.remove();
+}
+
+
 // Cette fonction génère un bouton avec une certaine classe et un comportement de filtrage
 function genererBouton(categorie) {
     const btn = document.createElement("button");
@@ -77,26 +84,35 @@ function afficherTravaux(travaux) {
     });
 }
 
-// Charger les catégories et générer les boutons dynamiquement
 async function chargerCategorie() {
+    if (isConnected) {
+        // Si l'utilisateur est connecté, on ne montre pas les filtres
+        const containerBoutons = document.querySelector('.boutons-filtre');
+        if (containerBoutons) {
+            containerBoutons.innerHTML = "";
+            containerBoutons.style.display = 'none';
+        }
+        return;
+    }
+
     const repCat = await fetch("http://localhost:5678/api/categories");
     const categories = await repCat.json();
 
     const containerBoutons = document.querySelector('.boutons-filtre');
-    containerBoutons.innerHTML = ""; // Vide le conteneur avant d'ajouter les boutons
+    containerBoutons.innerHTML = "";
+    containerBoutons.style.display = 'flex'; // Ou 'block', selon ton design
 
-    // Créer le bouton "Tous"
     const btnTous = genererBouton({ name: "Tous", id: "all" }, "btn-filtre", "active");
     btnTous.classList.add("active");
     containerBoutons.appendChild(btnTous);
     btnTous.click();
 
-    // Créer les boutons des catégories
     categories.forEach(category => {
         const btn = genererBouton(category);
         containerBoutons.appendChild(btn);
     });
 }
+
 
 window.addEventListener('load', () => {
     // Vérifie si l'utilisateur est connecté et ajoute le bandeau "Mode édition"
@@ -122,21 +138,48 @@ window.addEventListener('load', () => {
             text.textContent = 'modifier';
             modifierLink.appendChild(text);
 
+            // 💡 Ajoute l'écouteur juste ici :
+            modifierLink.addEventListener('click', openModal);
+
             // Ajoute le lien à la section "Mes Projets"
             portfolioSection.appendChild(modifierLink);
         }
     }
 
-    // Si la page actuelle est "login.html", on ajoute la classe "active" au lien "login"
     const loginLink = document.getElementById('login-link');
-    if (window.location.pathname.includes('login.html')) {
-        loginLink.classList.add('active');
+    const isConnectedNow = localStorage.getItem('isConnected') === 'true';
+
+    if (isConnected) {
+        loginLink.textContent = 'logout';
+        loginLink.href = '#';
+        loginLink.classList.remove('active');
+        loginLink.classList.remove('active', 'no-underline');
+        loginLink.classList.add('logout');
+
+        // Gestion du clic sur "Logout"
+        loginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            // Supprime les données de connexion
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('isConnected');
+
+            // Redirection vers login
+            window.location.href = 'login.html';
+        });
+    } else {
+        // Si on est sur login.html, on ajoute "active"
+        if (window.location.pathname.includes('login.html')) {
+            loginLink.classList.add('active');
+        }
+
+        // Si on est sur index.html, on enlève la soulignure
+        if (window.location.pathname.includes('index.html')) {
+            loginLink.classList.add('no-underline');
+        }
     }
 
-    // Si la page actuelle est "index.html", on enlève la soulignure du lien "Login"
-    if (window.location.pathname.includes('index.html')) {
-        loginLink.classList.add('no-underline');
-    }
 });
 
 chargerTravaux();

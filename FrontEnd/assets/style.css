@@ -303,12 +303,9 @@ input[type="submit"] {
 }
 
 #login-link {
+  color: inherit;
   text-decoration: none;
   font-weight: normal;
-}
-
-#login-link.active {
-  font-weight: bold;
 }
 
 .forgot-password {
@@ -327,6 +324,16 @@ footer nav ul {
   display: flex;
   justify-content: flex-end;
   margin: 2em;
+}
+
+#login-link.logout {
+  color: inherit;
+  text-decoration: none;
+}
+
+#login-link.logout:hover {
+  color: inherit;
+  text-decoration: none;
 }
 
 /* Style pour le lien "Modifier" avec l'icône et le texte */
@@ -353,7 +360,7 @@ footer nav ul {
   box-sizing: border-box;
 }
 
-/* Affichage modale */
+/* app.js */
 .modal {
   display: none;
   position: fixed;
@@ -367,17 +374,21 @@ footer nav ul {
 }
 
 .modal-wrapper {
+  position: relative;
   background: white;
   border-radius: 8px;
   width: 60%;
-  max-height: 80vh;
+  max-height: 100vh;
+  height: auto;
   overflow-y: auto;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding-bottom: 20px; /* Ajout d'un peu de padding en bas */
+  padding: 20px;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .modal-wrapper h2 {
@@ -423,6 +434,9 @@ footer nav ul {
 }
 
 .add-photo-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   font-family: "Syne", sans-serif;
   font-weight: 700;
   color: white;
@@ -430,7 +444,7 @@ footer nav ul {
   border: 1px solid #1d6154;
   width: 180px;
   text-align: center;
-  border-radius: 60px;
+  border-radius: 80px;
   padding: 10px 10px;
   cursor: pointer;
   font-size: 16px;
@@ -464,4 +478,158 @@ footer nav ul {
 
 .modal-gallery .trash-icon:hover {
   background-color: red;
+}
+
+/*upload.js*/
+
+/* Conteneur principal de la vue d'upload */
+.modal-upload-view {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+  background-color: white;
+  width: 100%;
+  max-width: 600px;
+  height: 100%;
+  padding: 20px;
+  border-radius: 8px;
+  position: relative;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+/* Ajout Photo */
+.modal-upload-view h2 {
+  font-family: "Work Sans", sans-serif;
+  font-size: 26px;
+  font-weight: 400;
+  color: black;
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+/* Bouton retour (flèche) en haut à gauche */
+.js-modal-back {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  font-size: 30px;
+  color: black;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+/* Conteneur d'upload centré */
+.upload-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #e8f1f6;
+  width: 100%;
+  padding: 40px;
+  border-radius: 8px;
+  margin-bottom: 40px;
+  text-align: center;
+  box-sizing: border-box;
+  height: 100%;
+}
+
+/* Icône de l'image */
+.upload-container i {
+  font-size: 50px;
+  color: #ccc;
+  display: block;
+  margin-bottom: 10px;
+}
+
+/* Texte d'indication pour l'upload */
+.upload-container p {
+  font-family: "Work Sans", sans-serif;
+  color: #666;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+/* Bouton de téléchargement */
+.upload-btn {
+  font-family: "Work Sans", sans-serif;
+  font-weight: 700;
+  color: #306685;
+  background-color: #cbd6dc;
+  border: 1px solid #cbd6dc;
+  width: 180px;
+  text-align: center;
+  border-radius: 80px;
+  padding: 10px 10px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-width: 200px;
+  white-space: nowrap;
+  justify-self: center;
+}
+
+/* Champs de saisie pour titre et catégorie */
+#upload-title,
+#upload-category {
+  font-family: "Work Sans", sans-serif;
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border: none;
+  border-radius: 5px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* Ombre légère */
+  font-size: 16px;
+}
+
+/* Séparateur entre les éléments */
+.separator {
+  width: 100%;
+  height: 1px;
+  background-color: grey;
+  margin: 20px 0;
+}
+
+/* Bouton de validation */
+.validate-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: "Syne", sans-serif;
+  font-weight: 700;
+  color: white;
+  background-color: #1d6154;
+  border: none;
+  width: 180px;
+  text-align: center;
+  border-radius: 80px;
+  padding: 10px 10px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-width: 200px;
+  white-space: nowrap;
+  justify-self: center;
+}
+
+.upload-container img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Centrer le message d'erreur en bas de la modale */
+#error-message {
+  color: red;
+  font-size: 16px;
+  display: none;
+  text-align: center;
+  margin-top: 10px;
+  width: 100%;
 }
