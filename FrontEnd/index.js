@@ -113,6 +113,76 @@ async function chargerCategorie() {
     });
 }
 
+async function uploadImageToAPI(imageFile, title, categoryId) {
+    const authToken = localStorage.getItem('authToken');
+
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    formData.append('title', title);
+    formData.append('category', categoryId);
+
+    try {
+        const response = await fetch('http://localhost:5678/api/works', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: formData
+        });
+
+        if (response.ok) {
+            const newWork = await response.json();
+            travaux.push(newWork);         // ajoute le nouveau travail au tableau
+            afficherTravaux(travaux);      // met à jour la galerie
+            alert("Image ajoutée avec succès !");
+        } else {
+            const errorData = await response.json();
+            console.error("Erreur lors de l'envoi :", errorData);
+            alert("Échec de l'envoi. Vérifie les champs et réessaie.");
+        }
+
+    } catch (error) {
+        console.error("Erreur réseau :", error);
+        alert("Une erreur est survenue lors de l'envoi.");
+    }
+}
+
+async function deleteImage(imageId, imageTitle = "cette image") {
+    const isConfirmed = confirm(`Voulez-vous vraiment supprimer "${imageTitle}" ?`);
+
+    if (!isConfirmed) return;
+
+    try {
+        const response = await fetch(`http://localhost:5678/api/works/${imageId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+            },
+        });
+
+        if (response.ok) {
+            const index = travaux.findIndex(travail => travail.id === imageId);
+            if (index !== -1) {
+                travaux.splice(index, 1);
+                afficherTravaux(travaux);
+            }
+
+            if (typeof loadGallery === "function") {
+                loadGallery();
+            }
+
+        } else {
+            alert("Erreur lors de la suppression de l'image.");
+        }
+    } catch (error) {
+        console.error("Erreur de suppression:", error);
+        alert("Une erreur est survenue lors de la suppression de l'image.");
+    }
+}
+
+
+
+
 
 window.addEventListener('load', () => {
     // Vérifie si l'utilisateur est connecté et ajoute le bandeau "Mode édition"
@@ -126,11 +196,11 @@ window.addEventListener('load', () => {
             // Crée le lien "Modifier" avec une icône de stylo
             const modifierLink = document.createElement('a');
             modifierLink.classList.add('modifier-link');
-            modifierLink.href = "#"; // Il peut être lié à une action ou une autre page
+            modifierLink.href = "#";
 
             // Ajoute une icône de stylo de Font Awesome à l'intérieur du lien
             const icon = document.createElement('i');
-            icon.classList.add('fas', 'fa-pen-to-square'); // Font Awesome classe pour l'icône du stylo
+            icon.classList.add('fas', 'fa-pen-to-square');
             modifierLink.appendChild(icon);
 
             // Ajouter le texte "Modifier" après l'icône

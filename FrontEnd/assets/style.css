@@ -374,18 +374,16 @@ footer nav ul {
 }
 
 .modal-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   position: relative;
   background: white;
   border-radius: 8px;
   width: 60%;
   max-height: 100vh;
   height: auto;
-  overflow-y: auto;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
   padding: 20px;
   box-sizing: border-box;
   overflow: hidden;
@@ -409,6 +407,7 @@ footer nav ul {
   background: none;
   font-size: 24px;
   cursor: pointer;
+  z-index: 1;
 }
 
 .modal-gallery {
@@ -423,14 +422,6 @@ footer nav ul {
   max-width: 100px;
   height: auto;
   object-fit: cover;
-}
-
-/* Séparation entre la galerie et le bouton */
-.separator {
-  width: 46%;
-  height: 1px;
-  background-color: grey;
-  margin: 20px 0;
 }
 
 .add-photo-btn {
@@ -484,20 +475,15 @@ footer nav ul {
 
 /* Conteneur principal de la vue d'upload */
 .modal-upload-view {
-  display: flex;
+  display: flex!;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  position: relative;
   background-color: white;
   width: 100%;
-  max-width: 600px;
   height: 100%;
-  padding: 20px;
   border-radius: 8px;
-  position: relative;
   box-sizing: border-box;
-  overflow-y: auto;
 }
 
 /* Ajout Photo */
@@ -530,7 +516,7 @@ footer nav ul {
   justify-content: center;
   align-items: center;
   background-color: #e8f1f6;
-  width: 100%;
+  width: 60%;
   padding: 40px;
   border-radius: 8px;
   margin-bottom: 40px;
@@ -578,7 +564,7 @@ footer nav ul {
 #upload-title,
 #upload-category {
   font-family: "Work Sans", sans-serif;
-  width: 100%;
+  width: 60%;
   padding: 10px;
   margin-top: 10px;
   margin-bottom: 10px;
@@ -589,8 +575,15 @@ footer nav ul {
 }
 
 /* Séparateur entre les éléments */
-.separator {
+.separatorGallery {
   width: 100%;
+  height: 1px;
+  background-color: grey;
+  margin: 20px 0;
+}
+
+.separatorUpload {
+  width: 60%;
   height: 1px;
   background-color: grey;
   margin: 20px 0;

@@ -4,6 +4,8 @@ let fileInput = null;
 let validateBtn = null;
 let selectedImageContainer = null;
 let errorMessage = null;
+let uploadButtonEventAttached = false;
+
 
 const openModal = (e) => {
     e.preventDefault();
@@ -36,8 +38,12 @@ const closeModal = (e) => {
     modal.querySelector('.js-modal-close').removeEventListener('click', closeModal);
     modal = null;
 
-    // Réinitialiser les champs et masquer le message d'erreur
+    // Réinitialiser
+    // les champs et masquer le message d'erreur
     resetForm();
+
+    // Si on ferme la modale, on reload la page
+    location.reload()
 };
 
 // Afficher la galerie dans la modale
@@ -59,7 +65,7 @@ async function loadGallery() {
         trashIcon.classList.add('fa-solid', 'fa-trash', 'trash-icon');
         trashIcon.addEventListener('click', function (e) {
             e.stopPropagation();
-            alert(`Supprimer l'image : ${travail.title}`);
+            deleteImage(travail.id, travail.title);
         });
 
         container.appendChild(img);
@@ -69,25 +75,22 @@ async function loadGallery() {
 }
 
 // Fonction qui vérifie la validité des champs
-function checkFormValidity() {
+function checkFormValidity(showError = false) {
     const title = document.getElementById('upload-title').value;
     const category = document.getElementById('upload-category').value;
-    const file = fileInput.files.length > 0;  // Vérifie si un fichier est sélectionné
+    const file = fileInput.files.length > 0;
 
-    // Vérifier si tous les champs sont remplis et qu'un fichier est sélectionné
-    if (title && category && file) {
-        // Si tous les champs sont valides, activer le bouton "Valider"
+    const isValid = title && category && file;
+
+    if (isValid) {
         validateBtn.style.backgroundColor = '#1d6154';
         validateBtn.style.cursor = 'pointer';
     } else {
-        // Si un des champs est vide, désactiver le bouton "Valider"
         validateBtn.style.backgroundColor = '#cbd6dc';
-        validateBtn.style.cursor = 'not-allowed';
-
     }
 
-    // Afficher ou masquer le message d'erreur
-    if (!title || !category || !file) {
+    // N'affiche l'erreur QUE si on a explicitement demandé à le faire (clic sur "Valider")
+    if (!isValid) {
         errorMessage.style.display = 'block';
     } else {
         errorMessage.style.display = 'none';
@@ -100,6 +103,7 @@ function checkFormValidity() {
 function showGalleryView() {
     document.querySelector('.modal-gallery-view').style.display = 'block';
     document.querySelector('.modal-upload-view').style.display = 'none';
+    resetForm();
     loadGallery();
 }
 
@@ -107,8 +111,8 @@ function showGalleryView() {
 async function showUploadView() {
     document.querySelector('.modal-gallery-view').style.display = 'none';
     const galleryContainer = document.querySelector('.modal-gallery');
-    galleryContainer.innerHTML = "";  // Vide le contenu de la galerie
-    document.querySelector('.modal-upload-view').style.display = 'block';
+    galleryContainer.innerHTML = "";
+    document.querySelector('.modal-upload-view').style.display = 'flex';
 
     // Charger les catégories pour le formulaire d'upload
     await loadCategories();
@@ -118,25 +122,47 @@ async function showUploadView() {
     errorMessage = document.getElementById('error-message');
     selectedImageContainer = document.getElementById('selected-image-container');
 
-    validateBtn.style.backgroundColor = '#cbd6dc';  // Couleur gris au début
+    validateBtn.style.backgroundColor = '#cbd6dc';
 
-    // Ajouter l'événement de clic sur le bouton "+ Ajouter photo"
+    // Ajouter l'événement de clic sur le bouton "+ Ajouter photo" UNE SEULE FOIS
     const addPhotoButton = document.querySelector('.upload-btn');
-    addPhotoButton.addEventListener('click', () => {
-        fileInput.click();
-    });
+    if (!uploadButtonEventAttached) {
+        addPhotoButton.addEventListener('click', () => {
+            fileInput.click();
+        });
+        uploadButtonEventAttached = true;
+    }
 
     // Ajouter l'événement au champ file pour afficher l'image sélectionnée
     fileInput.addEventListener('change', handleFileSelect);
 
-    // Ajouter l'événement pour vérifier la validité des champs lorsque l'utilisateur modifie un champ
     document.getElementById('upload-title').addEventListener('input', checkFormValidity);
-    document.getElementById('upload-category').addEventListener('change', checkFormValidity);
+    document.getElementById('upload-category').addEventListener('input', checkFormValidity);
+    document.getElementById('file-input').addEventListener('change', checkFormValidity);
 
     // Écouter l'événement du bouton "Valider"
-    validateBtn.addEventListener('click', (e) => {
+    validateBtn.addEventListener('click', async (e) => {
         e.preventDefault();
-        checkFormValidity();  // Vérifier encore la validité avant la soumission
+
+        const title = document.getElementById('upload-title').value;
+        const categoryId = document.getElementById('upload-category').value;
+        const file = fileInput.files[0];
+
+        const isValid = title && categoryId && file;
+
+        if (!isValid) {
+            checkFormValidity(true);
+            return;
+        }
+
+        // Appel de la fonction d'envoi à l'API
+        await uploadImageToAPI(file, title, categoryId);
+
+        // Réinitialise le formulaire
+        resetForm();
+
+        // Reviens à la galerie
+        showGalleryView();
     });
 }
 
@@ -155,13 +181,11 @@ function handleFileSelect(event) {
 
             // Effacer le texte d'origine dans la div .upload-container
             const uploadContainer = document.querySelector('.upload-container');
-            uploadContainer.innerHTML = '';  // Supprimer le texte (et l'icône) dans .upload-container
+            uploadContainer.innerHTML = '';
 
             // Ajouter l'image dans la div
             uploadContainer.appendChild(imgElement);
 
-            // Vérifier la validité des champs après l'ajout de l'image
-            checkFormValidity();
         };
 
         // Lire l'image comme une URL de données (base64)
@@ -171,11 +195,15 @@ function handleFileSelect(event) {
 
 // Réinitialiser les champs et masquer le message d'erreur
 function resetForm() {
-    document.getElementById('upload-title').value = '';
-    document.getElementById('upload-category').value = '';
+    const titleInput = document.getElementById('upload-title');
+    const categorySelect = document.getElementById('upload-category');
+    const fileInput = document.getElementById('file-input');
+
+
+    titleInput.value = '';
+    categorySelect.value = '';
     fileInput.value = '';
-    validateBtn.style.backgroundColor = '#cbd6dc';
-    errorMessage.style.display = 'none';
+
 }
 
 // Charger les catégories pour le <select>
@@ -192,3 +220,5 @@ async function loadCategories() {
         select.appendChild(option);
     });
 }
+
+
