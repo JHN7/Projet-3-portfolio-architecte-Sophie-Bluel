@@ -517,7 +517,6 @@ footer nav ul {
   align-items: center;
   background-color: #e8f1f6;
   width: 60%;
-  padding: 40px;
   border-radius: 8px;
   margin-bottom: 40px;
   text-align: center;
@@ -612,9 +611,10 @@ footer nav ul {
 }
 
 .upload-container img {
-  max-width: 100%;
-  max-height: 100%;
+  max-width: 129px;
+  max-height: 252px;
   object-fit: contain;
+  display: block;
 }
 
 /* Centrer le message d'erreur en bas de la modale */

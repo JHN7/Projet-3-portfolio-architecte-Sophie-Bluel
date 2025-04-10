@@ -3,7 +3,6 @@ let modal = null;
 let fileInput = null;
 let validateBtn = null;
 let selectedImageContainer = null;
-let errorMessage = null;
 let uploadButtonEventAttached = false;
 
 
@@ -43,7 +42,7 @@ const closeModal = (e) => {
     resetForm();
 
     // Si on ferme la modale, on reload la page
-    location.reload()
+    // location.reload()
 };
 
 // Afficher la galerie dans la modale
@@ -88,13 +87,6 @@ function checkFormValidity(showError = false) {
     } else {
         validateBtn.style.backgroundColor = '#cbd6dc';
     }
-
-    // N'affiche l'erreur QUE si on a explicitement demandé à le faire (clic sur "Valider")
-    if (!isValid) {
-        errorMessage.style.display = 'block';
-    } else {
-        errorMessage.style.display = 'none';
-    }
 }
 
 
@@ -119,7 +111,6 @@ async function showUploadView() {
 
     fileInput = document.getElementById('file-input');
     validateBtn = document.querySelector('.validate-btn');
-    errorMessage = document.getElementById('error-message');
     selectedImageContainer = document.getElementById('selected-image-container');
 
     validateBtn.style.backgroundColor = '#cbd6dc';

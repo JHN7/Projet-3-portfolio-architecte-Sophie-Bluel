@@ -62,6 +62,7 @@ function filtrerTravauxParCategorie(categorieId) {
 async function chargerTravaux() {
     const repWork = await fetch("http://localhost:5678/api/works");
     travaux = await repWork.json();
+
     afficherTravaux(travaux);
 }
 
@@ -85,33 +86,31 @@ function afficherTravaux(travaux) {
 }
 
 async function chargerCategorie() {
-    if (isConnected) {
-        // Si l'utilisateur est connecté, on ne montre pas les filtres
-        const containerBoutons = document.querySelector('.boutons-filtre');
-        if (containerBoutons) {
-            containerBoutons.innerHTML = "";
-            containerBoutons.style.display = 'none';
-        }
-        return;
+    const isConnected = localStorage.getItem('isConnected');
+    const containerBoutons = document.querySelector('.boutons-filtre');
+
+    if (containerBoutons) {
+        containerBoutons.innerHTML = "";
+        containerBoutons.style.display = 'flex'; // Ou 'block', selon ton design
     }
 
-    const repCat = await fetch("http://localhost:5678/api/categories");
-    const categories = await repCat.json();
+    if (!isConnected) {
+        // Si l'utilisateur n'est pas connecté, on charge les catégories et les boutons de filtre
+        const repCat = await fetch("http://localhost:5678/api/categories");
+        const categories = await repCat.json();
 
-    const containerBoutons = document.querySelector('.boutons-filtre');
-    containerBoutons.innerHTML = "";
-    containerBoutons.style.display = 'flex'; // Ou 'block', selon ton design
+        const btnTous = genererBouton({ name: "Tous", id: "all" });
+        btnTous.classList.add("active");
+        containerBoutons.appendChild(btnTous);
+        btnTous.click();
 
-    const btnTous = genererBouton({ name: "Tous", id: "all" }, "btn-filtre", "active");
-    btnTous.classList.add("active");
-    containerBoutons.appendChild(btnTous);
-    btnTous.click();
-
-    categories.forEach(category => {
-        const btn = genererBouton(category);
-        containerBoutons.appendChild(btn);
-    });
+        categories.forEach(category => {
+            const btn = genererBouton(category);
+            containerBoutons.appendChild(btn);
+        });
+    }
 }
+
 
 async function uploadImageToAPI(imageFile, title, categoryId) {
     const authToken = localStorage.getItem('authToken');
@@ -181,9 +180,6 @@ async function deleteImage(imageId, imageTitle = "cette image") {
 }
 
 
-
-
-
 window.addEventListener('load', () => {
     // Vérifie si l'utilisateur est connecté et ajoute le bandeau "Mode édition"
     afficherBandeauEdition();
@@ -217,7 +213,6 @@ window.addEventListener('load', () => {
     }
 
     const loginLink = document.getElementById('login-link');
-    const isConnectedNow = localStorage.getItem('isConnected') === 'true';
 
     if (isConnected) {
         loginLink.textContent = 'logout';
