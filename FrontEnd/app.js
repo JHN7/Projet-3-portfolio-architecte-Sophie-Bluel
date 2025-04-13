@@ -4,6 +4,7 @@ let fileInput = null;
 let validateBtn = null;
 let selectedImageContainer = null;
 let uploadButtonEventAttached = false;
+let originalUploadContainerHTML;
 
 
 const openModal = (e) => {
@@ -38,12 +39,28 @@ const closeModal = (e) => {
     modal = null;
 
     // Réinitialiser
-    // les champs et masquer le message d'erreur
     resetForm();
 
-    // Si on ferme la modale, on reload la page
-    // location.reload()
 };
+
+// Fonction pour afficher l'aperçu de l'image sélectionnée
+function handleFileSelect(event) {
+    const file = event.target.files[0]; // Get the selected file
+    console.log("File selected:", file); // Log the selected file
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const imgElement = document.createElement('img');
+            imgElement.src = e.target.result; // Set the image source
+            const uploadContainer = document.querySelector('.upload-container');
+            uploadContainer.innerHTML = ''; // Clear previous content
+            uploadContainer.appendChild(imgElement); // Add the new image
+        };
+        reader.readAsDataURL(file); // Read the file as a data URL
+    }
+}
+
 
 // Afficher la galerie dans la modale
 async function loadGallery() {
@@ -93,11 +110,32 @@ function checkFormValidity(showError = false) {
 
 // Vue Galerie
 function showGalleryView() {
+    resetForm()
     document.querySelector('.modal-gallery-view').style.display = 'block';
     document.querySelector('.modal-upload-view').style.display = 'none';
-    resetForm();
     loadGallery();
 }
+
+async function handleValidateClick(e) {
+    e.preventDefault();
+
+    const title = document.getElementById('upload-title').value;
+    const categoryId = document.getElementById('upload-category').value;
+    const file = fileInput.files[0];
+
+    const isValid = title && categoryId && file;
+
+    if (!isValid) {
+        checkFormValidity(true);
+        return;
+    }
+
+    await uploadImageToAPI(file, title, categoryId);
+    console.log('Image uploaded successfully');
+
+    showGalleryView();
+}
+
 
 // Afficher la vue Upload
 async function showUploadView() {
@@ -106,7 +144,6 @@ async function showUploadView() {
     galleryContainer.innerHTML = "";
     document.querySelector('.modal-upload-view').style.display = 'flex';
 
-    // Charger les catégories pour le formulaire d'upload
     await loadCategories();
 
     fileInput = document.getElementById('file-input');
@@ -115,88 +152,54 @@ async function showUploadView() {
 
     validateBtn.style.backgroundColor = '#cbd6dc';
 
-    // Ajouter l'événement de clic sur le bouton "+ Ajouter photo" UNE SEULE FOIS
     const addPhotoButton = document.querySelector('.upload-btn');
-    if (!uploadButtonEventAttached) {
-        addPhotoButton.addEventListener('click', () => {
-            fileInput.click();
-        });
-        uploadButtonEventAttached = true;
-    }
+    addPhotoButton.removeEventListener('click', handleUploadButtonClick);
+    addPhotoButton.addEventListener('click', handleUploadButtonClick);
 
-    // Ajouter l'événement au champ file pour afficher l'image sélectionnée
+    fileInput.removeEventListener('change', handleFileSelect);
     fileInput.addEventListener('change', handleFileSelect);
 
     document.getElementById('upload-title').addEventListener('input', checkFormValidity);
     document.getElementById('upload-category').addEventListener('input', checkFormValidity);
-    document.getElementById('file-input').addEventListener('change', checkFormValidity);
 
-    // Écouter l'événement du bouton "Valider"
-    validateBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-
-        const title = document.getElementById('upload-title').value;
-        const categoryId = document.getElementById('upload-category').value;
-        const file = fileInput.files[0];
-
-        const isValid = title && categoryId && file;
-
-        if (!isValid) {
-            checkFormValidity(true);
-            return;
-        }
-
-        // Appel de la fonction d'envoi à l'API
-        await uploadImageToAPI(file, title, categoryId);
-
-        // Réinitialise le formulaire
-        resetForm();
-
-        // Reviens à la galerie
-        showGalleryView();
-    });
+    // 🔁 Enlever les anciens listeners pour éviter les doublons
+    validateBtn.removeEventListener('click', handleValidateClick);
+    validateBtn.addEventListener('click', handleValidateClick);
 }
 
-// Fonction pour afficher l'aperçu de l'image sélectionnée
-function handleFileSelect(event) {
-    const file = event.target.files[0];  // Récupère le premier fichier sélectionné
 
-    if (file) {
-        const reader = new FileReader();
-
-        reader.onload = function (e) {
-            // Créer une image et l'ajouter au conteneur
-            const imgElement = document.createElement('img');
-            imgElement.src = e.target.result; // URL de l'image
-            imgElement.alt = "Image sélectionnée";
-
-            // Effacer le texte d'origine dans la div .upload-container
-            const uploadContainer = document.querySelector('.upload-container');
-            uploadContainer.innerHTML = '';
-
-            // Ajouter l'image dans la div
-            uploadContainer.appendChild(imgElement);
-
-        };
-
-        // Lire l'image comme une URL de données (base64)
-        reader.readAsDataURL(file);
-    }
+// Function to handle the upload button click
+function handleUploadButtonClick(e) {
+    e.preventDefault();
+    fileInput.value = ""; // important pour forcer "change" même pour même fichier
+    fileInput.click();
 }
+
+window.addEventListener('DOMContentLoaded', () => {
+    const uploadContainer = document.querySelector('.upload-container');
+    originalUploadContainerHTML = uploadContainer.innerHTML;
+});
 
 // Réinitialiser les champs et masquer le message d'erreur
 function resetForm() {
     const titleInput = document.getElementById('upload-title');
     const categorySelect = document.getElementById('upload-category');
     const fileInput = document.getElementById('file-input');
+    const uploadButton = document.querySelector('.upload-container')
+
+    titleInput.value = null;
+    categorySelect.value = null;
+    fileInput.value = null;
 
 
-    titleInput.value = '';
-    categorySelect.value = '';
-    fileInput.value = '';
+    uploadButton.innerHTML = originalUploadContainerHTML;
+
+    // Re-attacher l'événement sur le bouton upload (car innerHTML le retire)
+    const newUploadBtn = uploadButton.querySelector('.upload-btn');
+    newUploadBtn.removeEventListener('click', handleUploadButtonClick);
+    newUploadBtn.addEventListener('click', handleUploadButtonClick);
 
 }
-
 // Charger les catégories pour le <select>
 async function loadCategories() {
     const response = await fetch("http://localhost:5678/api/categories");
