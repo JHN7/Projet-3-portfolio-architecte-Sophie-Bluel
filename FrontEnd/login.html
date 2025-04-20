@@ -34,9 +34,17 @@
         <form id="login-form" action="#" method="post">
           <label for="email">E-mail</label>
           <input type="email" name="email" id="email" required />
+
           <label for="password">Mot de passe</label>
-          <input type="password" name="password" id="password" />
-          <input type="submit" value="Envoyer" />
+          <input type="password" name="password" id="password" required />
+
+          <!-- Conteneur pour les messages d'erreur -->
+          <div
+            id="login-error-msg"
+            style="color: red; margin-top: 10px; display: none"
+          ></div>
+
+          <input type="submit" id="submit-btn" value="Envoyer" disabled />
           <a href="#" id="forgot-password" class="forgot-password"
             >Mot de passe oublié</a
           >

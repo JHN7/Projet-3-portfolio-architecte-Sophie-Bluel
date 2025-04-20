@@ -626,3 +626,95 @@ footer nav ul {
   margin-top: 10px;
   width: 100%;
 }
+
+/* Fenêtre de message */
+.message-window {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  display: none;
+}
+
+/* Contenu de la fenêtre */
+.message-content {
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 18px;
+  max-width: 500px;
+  margin: 20px;
+  width: 100%;
+}
+
+/* Styles pour différents types de messages */
+.message-window.success .message-content {
+  background-color: #28a745; /* Couleur de fond vert pour le succès */
+}
+
+.message-window.error .message-content {
+  background-color: #dc3545; /* Couleur de fond rouge pour l'erreur */
+}
+
+/* Style de la fenêtre modale de confirmation */
+.confirmation-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  display: none; /* Elle est cachée par défaut */
+}
+
+.confirmation-modal div {
+  text-align: center;
+}
+
+.confirmation-modal p {
+  margin-bottom: 20px;
+}
+
+.confirmation-modal button {
+  padding: 5px 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.confirmation-modal button:hover {
+  opacity: 0.8;
+}
+
+/* Style du bouton "Non" */
+.confirmation-modal button.cancel-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+/* Style du bouton "Oui" */
+.confirmation-modal button.confirm-btn {
+  background-color: #4caf50;
+  color: white;
+  margin-right: 10px;
+}
+
+#login-error-msg {
+  color: red;
+  margin-top: 10px;
+  display: none; /* Cacher par défaut */
+}
+
+#submit-btn:disabled {
+  background-color: #ccc; /* Exemple de désactivation du bouton */
+  cursor: not-allowed;
+}

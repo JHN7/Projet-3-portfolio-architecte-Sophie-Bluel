@@ -7,6 +7,8 @@ let uploadButtonEventAttached = false;
 let originalUploadContainerHTML;
 
 
+
+//Ouverture Modale 
 const openModal = (e) => {
     e.preventDefault();
     modal = document.getElementById('modal-gallery');
@@ -28,6 +30,7 @@ const openModal = (e) => {
     modal.querySelector('.js-modal-back').addEventListener('click', showGalleryView);
 };
 
+//Fermeture Modale 
 const closeModal = (e) => {
     if (modal === null) return;
     e.preventDefault();
@@ -43,24 +46,105 @@ const closeModal = (e) => {
 
 };
 
-// Fonction pour afficher l'aperçu de l'image sélectionnée
-function handleFileSelect(event) {
-    const file = event.target.files[0]; // Get the selected file
-    console.log("File selected:", file); // Log the selected file
 
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            const imgElement = document.createElement('img');
-            imgElement.src = e.target.result; // Set the image source
-            const uploadContainer = document.querySelector('.upload-container');
-            uploadContainer.innerHTML = ''; // Clear previous content
-            uploadContainer.appendChild(imgElement); // Add the new image
-        };
-        reader.readAsDataURL(file); // Read the file as a data URL
+// Fonction gérant l'affichage d'un message (erreur ou succès)
+function showMessage(text, type = "info") {
+    // Crée le conteneur du message
+    const messageWindow = document.createElement('div');
+    messageWindow.classList.add('message-window', type);
+
+    // Crée le contenu du message (contenant l'icône et le texte)
+    const messageContent = document.createElement('div');
+    messageContent.classList.add('message-content');
+
+    // Crée l'icône en fonction du type
+    const icon = document.createElement('i');
+    if (type === 'success') {
+        icon.className = 'fas fa-check-circle'; // Icône de succès
+    } else if (type === 'error') {
+        icon.className = 'fas fa-times-circle'; // Icône d'erreur
+    }
+
+    // Crée le texte du message
+    const messageText = document.createElement('span');
+    messageText.textContent = text;
+
+    // Ajoute l'icône et le texte dans le message
+    messageContent.appendChild(icon);
+    messageContent.appendChild(messageText);
+
+    // Ajoute le contenu du message dans la fenêtre
+    messageWindow.appendChild(messageContent);
+
+    // Ajoute le message à l'élément body
+    document.body.appendChild(messageWindow);
+
+    // Afficher le message
+    messageWindow.style.display = 'flex';
+
+    // Disparaître après 3 secondes
+    setTimeout(() => {
+        messageWindow.style.display = 'none';
+    }, 3000);
+
+    // Fermer la fenêtre de message si on clique en dehors de celle-ci
+    messageWindow.addEventListener('click', (e) => {
+        if (e.target === messageWindow) {
+            messageWindow.style.display = 'none';
+        }
+    });
+
+    // Empêcher la propagation du clic dans le contenu de la modale
+    messageContent.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+}
+
+//Fonction qui gère le retrait du message
+function hideMessage() {
+    const messageWindow = document.querySelector('.message-window');
+    if (messageWindow) {
+        messageWindow.style.display = 'none';
     }
 }
 
+// Fonction pour afficher l'aperçu de l'image sélectionnée
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+
+    if (file) {
+        // Vérifie la taille (4 Mo max)
+        if (file.size > 4 * 1024 * 1024) {
+            showMessage("Le fichier est trop volumineux (max 4 Mo)", "error");
+            fileInput.value = ''; // Reset input
+            return;
+        }
+
+        // Masquer tout ancien message d'erreur
+        hideMessage();
+
+        // Affiche l'aperçu de l'image
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            // Créer l'élément image
+            const imgElement = document.createElement('img');
+            imgElement.src = e.target.result;
+
+            // Récupérer le conteneur où l'image doit être affichée
+            const uploadContainer = document.querySelector('.upload-container');
+            uploadContainer.innerHTML = '';
+
+            // Ajouter l'image d'aperçu
+            uploadContainer.appendChild(imgElement);
+        };
+
+        reader.readAsDataURL(file); // Lire le fichier en tant qu'URL de données
+    }
+}
+
+// Récupérer le champ de saisie de fichier et ajouter l'événement `change`
+fileInput = document.getElementById('file-input');
+fileInput.addEventListener('change', handleFileSelect);
 
 // Afficher la galerie dans la modale
 async function loadGallery() {
@@ -106,8 +190,6 @@ function checkFormValidity(showError = false) {
     }
 }
 
-
-
 // Vue Galerie
 function showGalleryView() {
     resetForm()
@@ -116,6 +198,7 @@ function showGalleryView() {
     loadGallery();
 }
 
+//Fonction qui prend en charge l'appuie sur le bouton valider
 async function handleValidateClick(e) {
     e.preventDefault();
 
@@ -153,6 +236,8 @@ async function showUploadView() {
     validateBtn.style.backgroundColor = '#cbd6dc';
 
     const addPhotoButton = document.querySelector('.upload-btn');
+
+    //  Enlever les anciens listeners pour éviter les doublons
     addPhotoButton.removeEventListener('click', handleUploadButtonClick);
     addPhotoButton.addEventListener('click', handleUploadButtonClick);
 
@@ -162,19 +247,18 @@ async function showUploadView() {
     document.getElementById('upload-title').addEventListener('input', checkFormValidity);
     document.getElementById('upload-category').addEventListener('input', checkFormValidity);
 
-    // 🔁 Enlever les anciens listeners pour éviter les doublons
     validateBtn.removeEventListener('click', handleValidateClick);
     validateBtn.addEventListener('click', handleValidateClick);
 }
 
 
-// Function to handle the upload button click
+// Fonction qui prend en charge l'appuie sur le bouton upload
 function handleUploadButtonClick(e) {
     e.preventDefault();
-    fileInput.value = ""; // important pour forcer "change" même pour même fichier
     fileInput.click();
 }
 
+// Sauvegarde HTML d'origine "upload-Container" pour le reset form
 window.addEventListener('DOMContentLoaded', () => {
     const uploadContainer = document.querySelector('.upload-container');
     originalUploadContainerHTML = uploadContainer.innerHTML;
@@ -191,15 +275,14 @@ function resetForm() {
     categorySelect.value = null;
     fileInput.value = null;
 
-
     uploadButton.innerHTML = originalUploadContainerHTML;
 
-    // Re-attacher l'événement sur le bouton upload (car innerHTML le retire)
     const newUploadBtn = uploadButton.querySelector('.upload-btn');
     newUploadBtn.removeEventListener('click', handleUploadButtonClick);
     newUploadBtn.addEventListener('click', handleUploadButtonClick);
 
 }
+
 // Charger les catégories pour le <select>
 async function loadCategories() {
     const response = await fetch("http://localhost:5678/api/categories");
