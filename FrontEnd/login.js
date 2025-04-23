@@ -3,12 +3,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
     const submitButton = document.getElementById('submit-btn');
-    const errorMessageContainer = document.getElementById('login-error-msg'); // Conteneur pour les messages d'erreur
+    const errorMessageContainer = document.getElementById('login-error-msg');
 
     // Vérifier la validité des champs
     function checkFormValidity() {
         const email = emailInput.value.trim();
         const password = passwordInput.value.trim();
+
         // Désactiver le bouton d'envoi si les champs sont vides
         submitButton.disabled = !(email && password);
     }
@@ -16,12 +17,12 @@ document.addEventListener('DOMContentLoaded', function () {
     // Ajouter un événement pour vérifier la validité des champs à chaque modification
     emailInput.addEventListener('input', function () {
         checkFormValidity();
-        clearError(); // Effacer le message d'erreur si l'utilisateur modifie les champs
+        clearError();
     });
 
     passwordInput.addEventListener('input', function () {
         checkFormValidity();
-        clearError(); // Effacer le message d'erreur si l'utilisateur modifie les champs
+        clearError();
     });
 
     // Initialiser le bouton en fonction des champs
@@ -44,6 +45,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const email = emailInput.value.trim();
         const password = passwordInput.value.trim();
+
+        // Ne pas soumettre si l'un des champs est vide
+        if (!email || !password) {
+            showError('Veuillez remplir tous les champs.');
+            return;
+        }
 
         // Réinitialiser le message d'erreur
         clearError();
@@ -68,7 +75,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             window.location.href = 'index.html';
         } catch (error) {
-            // Afficher le message d'erreur dans la div créée
             showError('Identifiants incorrects');
         }
     });

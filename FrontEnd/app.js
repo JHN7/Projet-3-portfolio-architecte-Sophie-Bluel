@@ -48,57 +48,51 @@ const closeModal = (e) => {
 
 
 // Fonction gérant l'affichage d'un message (erreur ou succès)
-function showMessage(text, type = "info") {
-    // Crée le conteneur du message
+function showMessage(text, type = "info", resetOnClose = false) {
     const messageWindow = document.createElement('div');
     messageWindow.classList.add('message-window', type);
 
-    // Crée le contenu du message (contenant l'icône et le texte)
     const messageContent = document.createElement('div');
     messageContent.classList.add('message-content');
 
-    // Crée l'icône en fonction du type
     const icon = document.createElement('i');
     if (type === 'success') {
-        icon.className = 'fas fa-check-circle'; // Icône de succès
+        icon.className = 'fas fa-check-circle';
     } else if (type === 'error') {
-        icon.className = 'fas fa-times-circle'; // Icône d'erreur
+        icon.className = 'fas fa-times-circle';
     }
 
-    // Crée le texte du message
     const messageText = document.createElement('span');
     messageText.textContent = text;
 
-    // Ajoute l'icône et le texte dans le message
     messageContent.appendChild(icon);
     messageContent.appendChild(messageText);
-
-    // Ajoute le contenu du message dans la fenêtre
     messageWindow.appendChild(messageContent);
-
-    // Ajoute le message à l'élément body
     document.body.appendChild(messageWindow);
 
-    // Afficher le message
     messageWindow.style.display = 'flex';
 
-    // Disparaître après 3 secondes
     setTimeout(() => {
         messageWindow.style.display = 'none';
+        if (resetOnClose) {
+            resetForm();
+        }
     }, 3000);
 
-    // Fermer la fenêtre de message si on clique en dehors de celle-ci
     messageWindow.addEventListener('click', (e) => {
         if (e.target === messageWindow) {
             messageWindow.style.display = 'none';
+            if (resetOnClose) {
+                resetForm();
+            }
         }
     });
 
-    // Empêcher la propagation du clic dans le contenu de la modale
     messageContent.addEventListener('click', (e) => {
         e.stopPropagation();
     });
 }
+
 
 //Fonction qui gère le retrait du message
 function hideMessage() {
@@ -113,10 +107,36 @@ function handleFileSelect(event) {
     const file = event.target.files[0];
 
     if (file) {
+        const validTypes = ['image/jpeg', 'image/png'];
+
+        // Vérifie le type MIME
+        if (!validTypes.includes(file.type)) {
+            showMessage("  Seuls les fichiers JPG et PNG sont autorisés", "error");
+
+            // Reset du champ fichier
+            fileInput.value = '';
+
+            // Réinitialise l'aperçu
+            const uploadContainer = document.querySelector('.upload-container');
+            uploadContainer.innerHTML = originalUploadContainerHTML;
+
+            // Réattache le listener au nouveau bouton upload recréé
+            const newUploadBtn = uploadContainer.querySelector('.upload-btn');
+            newUploadBtn.removeEventListener('click', handleUploadButtonClick);
+            newUploadBtn.addEventListener('click', handleUploadButtonClick);
+
+            // Reset complet après disparition du message
+            setTimeout(() => {
+                resetForm();
+            }, 3000);
+
+            return;
+        }
+
         // Vérifie la taille (4 Mo max)
         if (file.size > 4 * 1024 * 1024) {
-            showMessage("Le fichier est trop volumineux (max 4 Mo)", "error");
-            fileInput.value = ''; // Reset input
+            showMessage("  Le fichier est trop volumineux (max 4 Mo)", "error");
+            fileInput.value = '';
             return;
         }
 
@@ -126,21 +146,19 @@ function handleFileSelect(event) {
         // Affiche l'aperçu de l'image
         const reader = new FileReader();
         reader.onload = function (e) {
-            // Créer l'élément image
             const imgElement = document.createElement('img');
             imgElement.src = e.target.result;
 
-            // Récupérer le conteneur où l'image doit être affichée
             const uploadContainer = document.querySelector('.upload-container');
             uploadContainer.innerHTML = '';
-
-            // Ajouter l'image d'aperçu
             uploadContainer.appendChild(imgElement);
         };
 
-        reader.readAsDataURL(file); // Lire le fichier en tant qu'URL de données
+        reader.readAsDataURL(file);
     }
 }
+
+
 
 // Récupérer le champ de saisie de fichier et ajouter l'événement `change`
 fileInput = document.getElementById('file-input');
@@ -178,9 +196,22 @@ async function loadGallery() {
 function checkFormValidity(showError = false) {
     const title = document.getElementById('upload-title').value;
     const category = document.getElementById('upload-category').value;
-    const file = fileInput.files.length > 0;
+    const file = fileInput.files[0];
 
-    const isValid = title && category && file;
+    let isValid = true;
+
+    if (!title || !category || !file) {
+        isValid = false;
+    }
+
+    // Vérification du type de fichier si un fichier est sélectionné
+    const validTypes = ['image/jpeg', 'image/png'];
+    if (file && !validTypes.includes(file.type)) {
+        isValid = false;
+        if (showError) {
+            showMessage("  Seuls les fichiers JPG et PNG sont autorisés", "error", true);
+        }
+    }
 
     if (isValid) {
         validateBtn.style.backgroundColor = '#1d6154';
@@ -188,7 +219,11 @@ function checkFormValidity(showError = false) {
     } else {
         validateBtn.style.backgroundColor = '#cbd6dc';
     }
+
+    return isValid;
 }
+
+
 
 // Vue Galerie
 function showGalleryView() {
@@ -202,22 +237,20 @@ function showGalleryView() {
 async function handleValidateClick(e) {
     e.preventDefault();
 
-    const title = document.getElementById('upload-title').value;
+    // Validation avec messages d'erreur
+    const isValid = checkFormValidity(true);
+
+    if (!isValid) return;
+
+    const title = document.getElementById('upload-title').value.trim();
     const categoryId = document.getElementById('upload-category').value;
     const file = fileInput.files[0];
 
-    const isValid = title && categoryId && file;
-
-    if (!isValid) {
-        checkFormValidity(true);
-        return;
-    }
-
     await uploadImageToAPI(file, title, categoryId);
-    console.log('Image uploaded successfully');
 
     showGalleryView();
 }
+
 
 
 // Afficher la vue Upload
@@ -267,12 +300,10 @@ window.addEventListener('DOMContentLoaded', () => {
 // Réinitialiser les champs et masquer le message d'erreur
 function resetForm() {
     const titleInput = document.getElementById('upload-title');
-    const categorySelect = document.getElementById('upload-category');
     const fileInput = document.getElementById('file-input');
     const uploadButton = document.querySelector('.upload-container')
 
     titleInput.value = null;
-    categorySelect.value = null;
     fileInput.value = null;
 
     uploadButton.innerHTML = originalUploadContainerHTML;

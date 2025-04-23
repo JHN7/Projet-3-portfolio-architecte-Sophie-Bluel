@@ -238,12 +238,12 @@ async function uploadImageToAPI(imageFile, title, categoryId) {
 
         if (response.ok) {
             const newWork = await response.json();
-            travaux.push(newWork);         // ajoute le nouveau travail au tableau
-            afficherTravaux(travaux);      // met à jour la galerie
-            afficherMessage("success", "Image ajoutée avec succès !");
+            travaux.push(newWork);
+            afficherTravaux(travaux);
+            afficherMessage("success", "  Image ajoutée avec succès !");
         } else {
             const errorData = await response.json();
-            afficherMessage("error", "Échec de l'envoi. Vérifie les champs et réessaie.");
+            afficherMessage("error", "  Échec de l'envoi. Vérifie les champs et réessaie.");
         }
 
     } catch (error) {
@@ -255,7 +255,7 @@ async function uploadImageToAPI(imageFile, title, categoryId) {
 async function deleteImage(imageId, imageTitle = "cette image") {
     // Créer une fenêtre modale de confirmation
     const confirmationModal = document.createElement('div');
-    confirmationModal.classList.add('confirmation-modal');  // Utilise la classe CSS
+    confirmationModal.classList.add('confirmation-modal');
 
     // Contenu de la modale
     const modalContent = document.createElement('div');
@@ -284,8 +284,8 @@ async function deleteImage(imageId, imageTitle = "cette image") {
         // Effectuer la suppression de l'image
         const isConfirmed = await supprimerImage(imageId);
         if (isConfirmed) {
-            afficherMessage("success", `L'image "${imageTitle}" a été supprimée avec succès !`);
-            loadGallery(); // Recharger la galerie après suppression
+            afficherMessage("success", `  L'image "${imageTitle}" a été supprimée avec succès !`);
+            loadGallery();
         } else {
             afficherMessage("error", "Erreur lors de la suppression de l'image.");
         }
@@ -309,15 +309,15 @@ async function deleteImage(imageId, imageTitle = "cette image") {
 
     // Fermer la modale si on clique en dehors de celle-ci
     confirmationModal.addEventListener('click', (e) => {
-        // Vérifier si le clic vient de l'extérieur de la modale
+
         if (e.target === confirmationModal) {
-            confirmationModal.style.display = 'none'; // Fermer la modale
+            confirmationModal.style.display = 'none';
         }
     });
 
     // Empêcher la propagation du clic à l'extérieur de la modale
     modalContent.addEventListener('click', (e) => {
-        e.stopPropagation();  // Empêche le clic de se propager à confirmationModal
+        e.stopPropagation();
     });
 }
 
